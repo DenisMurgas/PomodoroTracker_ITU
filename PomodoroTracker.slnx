@@ -1,0 +1,13 @@
+<Solution>
+  <Folder Name="/App/">
+    <Project Path="PomodoroTracker.Common/PomodoroTracker.Common.csproj" />
+    <Project Path="PomodoroTracker.DAL/PomodoroTracker.DAL.csproj" />
+  </Folder>
+  <Folder Name="/SolutionFiles/">
+    <File Path=".editorconfig" />
+    <File Path="Directory.Packages.props" />
+    <File Path="Directory.Build.props" />
+    <File Path="global.json" />
+    <File Path="nuget.config" />
+  </Folder>
+</Solution>
