@@ -2,6 +2,7 @@
   <Folder Name="/App/">
     <Project Path="PomodoroTracker.Common/PomodoroTracker.Common.csproj" />
     <Project Path="PomodoroTracker.DAL/PomodoroTracker.DAL.csproj" />
+    <Project Path="PomodoroTracker.BL/PomodoroTracker.BL.csproj" />
   </Folder>
   <Folder Name="/SolutionFiles/">
     <File Path=".editorconfig" />
