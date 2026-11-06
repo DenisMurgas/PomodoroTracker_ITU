@@ -1,15 +1,408 @@
-<!-- Autor: Tým / Spoločné -->
+<!-- Autor: xpeterm01 -->
 <views:ContentPageBase xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
                        xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
                        xmlns:views="clr-namespace:PomodoroTracker.App.Views"
                        xmlns:vm="clr-namespace:PomodoroTracker.App.ViewModels"
+                       xmlns:models="clr-namespace:PomodoroTracker.App.Models"
+                       xmlns:controls="clr-namespace:PomodoroTracker.App.Controls"
+                       xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
                        x:Class="PomodoroTracker.App.Views.Timer.TimerView"
                        x:DataType="vm:TimerViewModel"
-                       Title="Časovač">
-    <Border Style="{StaticResource CardStyle}">
-        <Label Text="Časovač"
-               Style="{StaticResource PageTitleLabelStyle}"
-               HorizontalOptions="Center"
-               VerticalOptions="Center" />
-    </Border>
+                       Title="Časovač"
+                       Padding="0">
+
+    <views:ContentPageBase.Resources>
+        <toolkit:InvertedBoolConverter x:Key="InvertedBoolConverter" />
+
+        <Style x:Key="PanelToggleStyle" TargetType="Border">
+            <Setter Property="WidthRequest" Value="40" />
+            <Setter Property="HeightRequest" Value="30" />
+            <Setter Property="StrokeThickness" Value="0" />
+            <Setter Property="BackgroundColor" Value="{StaticResource SurfaceColor}" />
+            <Setter Property="Shadow" Value="{StaticResource SoftControlShadow}" />
+            <Setter Property="StrokeShape">
+                <Setter.Value>
+                    <RoundRectangle CornerRadius="8" />
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="PanelCardStyle" TargetType="Border" BasedOn="{StaticResource CardStyle}">
+            <Setter Property="Stroke" Value="{StaticResource SurfaceColor}" />
+            <Setter Property="StrokeThickness" Value="1" />
+        </Style>
+
+        <Style x:Key="PanelSeparatorStyle" TargetType="BoxView">
+            <Setter Property="Color" Value="{StaticResource SurfaceColor}" />
+        </Style>
+
+        <Style x:Key="CheckMarkBoxStyle" TargetType="Border">
+            <Setter Property="WidthRequest" Value="18" />
+            <Setter Property="HeightRequest" Value="18" />
+            <Setter Property="StrokeThickness" Value="1.5" />
+            <Setter Property="Stroke" Value="{StaticResource CheckboxColor}" />
+            <Setter Property="BackgroundColor" Value="{StaticResource SurfaceColor}" />
+            <Setter Property="VerticalOptions" Value="Center" />
+            <Setter Property="StrokeShape">
+                <Setter.Value>
+                    <RoundRectangle CornerRadius="4" />
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </views:ContentPageBase.Resources>
+
+    <Grid ColumnDefinitions="*,Auto">
+
+        <Border Grid.Column="0" Margin="14" Style="{StaticResource CardStyle}">
+            <Grid RowDefinitions="*,Auto,Auto" RowSpacing="12">
+
+                <Grid Grid.Row="0"
+                      WidthRequest="220"
+                      HeightRequest="220"
+                      HorizontalOptions="Center"
+                      VerticalOptions="Center">
+                    <controls:ProgressRing Progress="{Binding Progress}"
+                                           Thickness="12"
+                                           TrackColor="{StaticResource TimerTrackColor}"
+                                           ProgressColor="{StaticResource WorkColor}">
+                        <controls:ProgressRing.Triggers>
+                            <DataTrigger TargetType="controls:ProgressRing" Binding="{Binding IsBreakPhase}" Value="True">
+                                <Setter Property="ProgressColor" Value="{StaticResource BreakColor}" />
+                            </DataTrigger>
+                            <DataTrigger TargetType="controls:ProgressRing" Binding="{Binding IsOverrun}" Value="True">
+                                <Setter Property="ProgressColor" Value="{StaticResource OverrunColor}" />
+                            </DataTrigger>
+                        </controls:ProgressRing.Triggers>
+                    </controls:ProgressRing>
+
+                    <VerticalStackLayout Spacing="2"
+                                         HorizontalOptions="Center"
+                                         VerticalOptions="Center">
+                        <Label Text="{Binding ClockText}"
+                               Style="{StaticResource TimerLabelStyle}"
+                               HorizontalOptions="Center">
+                            <Label.Triggers>
+                                <DataTrigger TargetType="Label" Binding="{Binding IsOverrun}" Value="True">
+                                    <Setter Property="TextColor" Value="{StaticResource OverrunTextColor}" />
+                                </DataTrigger>
+                            </Label.Triggers>
+                        </Label>
+                        <Label Text="{Binding PhaseText}"
+                               FontFamily="InterSemiBold"
+                               TextColor="{StaticResource AccentColor}"
+                               HorizontalOptions="Center">
+                            <Label.Triggers>
+                                <DataTrigger TargetType="Label" Binding="{Binding IsBreakPhase}" Value="True">
+                                    <Setter Property="TextColor" Value="{StaticResource BreakTextColor}" />
+                                </DataTrigger>
+                                <DataTrigger TargetType="Label" Binding="{Binding IsOverrun}" Value="True">
+                                    <Setter Property="TextColor" Value="{StaticResource OverrunTextColor}" />
+                                </DataTrigger>
+                                <DataTrigger TargetType="Label" Binding="{Binding IsIdle}" Value="True">
+                                    <Setter Property="TextColor" Value="{StaticResource TextSecondaryColor}" />
+                                </DataTrigger>
+                            </Label.Triggers>
+                        </Label>
+                    </VerticalStackLayout>
+                </Grid>
+
+                <Label Grid.Row="1"
+                       Text="{Binding BlockText}"
+                       Style="{StaticResource SmallLabelStyle}"
+                       HorizontalOptions="Center" />
+
+                <HorizontalStackLayout Grid.Row="2"
+                                       Spacing="8"
+                                       HorizontalOptions="Center">
+                    <Button Text="{Binding StartText}"
+                            Style="{StaticResource PrimaryButtonStyle}"
+                            Command="{Binding StartCommand}"
+                            IsVisible="{Binding IsIdle}" />
+                    <Button Text="Pauza"
+                            Style="{StaticResource DarkButtonStyle}"
+                            Command="{Binding PauseCommand}"
+                            IsVisible="{Binding IsRunning}" />
+                    <Button Text="Pokračovať"
+                            Style="{StaticResource DarkButtonStyle}"
+                            Command="{Binding ResumeCommand}"
+                            IsVisible="{Binding IsPaused}" />
+                    <Button Text="+5 min"
+                            Style="{StaticResource SecondaryButtonStyle}"
+                            Command="{Binding ExtendCommand}"
+                            IsVisible="{Binding IsWorkActive}" />
+                    <Button Text="Ukončiť blok"
+                            Style="{StaticResource SecondaryButtonStyle}"
+                            Command="{Binding SkipCommand}"
+                            IsVisible="{Binding IsWorkActive}" />
+                    <Button Text="Preskočiť prestávku"
+                            Style="{StaticResource SecondaryButtonStyle}"
+                            Command="{Binding SkipCommand}"
+                            IsVisible="{Binding IsBreakActive}" />
+                    <Button Text="Späť k práci"
+                            Style="{StaticResource PrimaryButtonStyle}"
+                            Command="{Binding ReturnToWorkCommand}"
+                            IsVisible="{Binding IsOverrun}" />
+                </HorizontalStackLayout>
+            </Grid>
+        </Border>
+
+        <Grid Grid.Column="1"
+              WidthRequest="328"
+              BackgroundColor="{StaticResource BackgroundSecondaryColor}"
+              IsVisible="{Binding IsPanelOpen}">
+
+            <Grid RowDefinitions="51,Auto,Auto,*,Auto"
+                  RowSpacing="11"
+                  Padding="10,0,14,14">
+
+                <Grid Grid.Row="0" ColumnDefinitions="*,Auto" Padding="6,0,0,0">
+                    <Label Grid.Column="0"
+                           Text="Detaily časovača"
+                           Style="{StaticResource CardTitleLabelStyle}"
+                           VerticalOptions="Center" />
+                    <Border Grid.Column="1"
+                            Style="{StaticResource PanelToggleStyle}"
+                            HeightRequest="32"
+                            VerticalOptions="Center">
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding TogglePanelCommand}" />
+                        </Border.GestureRecognizers>
+                        <Image Source="panel_close.png"
+                               WidthRequest="16"
+                               HeightRequest="14">
+                            <Image.Behaviors>
+                                <toolkit:IconTintColorBehavior TintColor="{StaticResource TextNavigationColor}" />
+                            </Image.Behaviors>
+                        </Image>
+                    </Border>
+                </Grid>
+
+                <Border Grid.Row="1" Style="{StaticResource PanelCardStyle}">
+                    <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="10">
+                        <BoxView Grid.Column="0"
+                                 WidthRequest="10"
+                                 HeightRequest="10"
+                                 CornerRadius="3"
+                                 VerticalOptions="Center"
+                                 Color="{Binding CurrentTask.ProjectColor, Converter={StaticResource HexToColorConverter}}"
+                                 IsVisible="{Binding HasTask}" />
+
+                        <VerticalStackLayout Grid.Column="1"
+                                             Spacing="2"
+                                             VerticalOptions="Center"
+                                             IsVisible="{Binding HasTask}">
+                            <Label Text="{Binding CurrentTask.Name}"
+                                   Style="{StaticResource TaskLabelStyle}"
+                                   LineBreakMode="TailTruncation" />
+                            <Label Style="{StaticResource SmallLabelStyle}" LineBreakMode="TailTruncation">
+                                <Label.FormattedText>
+                                    <FormattedString>
+                                        <Span Text="{Binding CurrentTask.ProjectName}" />
+                                        <Span Text=" · " />
+                                        <Span Text="{Binding CurrentTask.TrackedTime, Converter={StaticResource TimeSpanToDurationConverter}}" />
+                                    </FormattedString>
+                                </Label.FormattedText>
+                            </Label>
+                        </VerticalStackLayout>
+
+                        <Label Grid.Column="1"
+                               Text="Bez úlohy"
+                               Style="{StaticResource SmallLabelStyle}"
+                               VerticalOptions="Center"
+                               IsVisible="{Binding HasTask, Converter={StaticResource InvertedBoolConverter}}" />
+
+                        <Label Grid.Column="2"
+                               Text="Zmeniť"
+                               FontFamily="InterSemiBold"
+                               TextColor="{StaticResource AccentColor}"
+                               VerticalOptions="Center">
+                            <Label.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding ChangeTaskCommand}" />
+                            </Label.GestureRecognizers>
+                        </Label>
+                    </Grid>
+                </Border>
+
+                <Border Grid.Row="2" Style="{StaticResource PanelCardStyle}">
+                    <VerticalStackLayout Spacing="10">
+                        <Grid ColumnDefinitions="*,Auto">
+                            <Label Grid.Column="0"
+                                   Text="Profil"
+                                   Style="{StaticResource CardTitleLabelStyle}"
+                                   VerticalOptions="Center" />
+                            <Border Grid.Column="1"
+                                    Padding="3"
+                                    StrokeThickness="0"
+                                    BackgroundColor="{StaticResource SurfaceColor}">
+                                <Border.StrokeShape>
+                                    <RoundRectangle CornerRadius="9" />
+                                </Border.StrokeShape>
+                                <HorizontalStackLayout Spacing="2" BindableLayout.ItemsSource="{Binding Profiles}">
+                                    <BindableLayout.ItemTemplate>
+                                        <DataTemplate x:DataType="models:TimerProfileOptionModel">
+                                            <Border Padding="10,0"
+                                                    HeightRequest="28"
+                                                    StrokeThickness="0"
+                                                    BackgroundColor="Transparent">
+                                                <Border.StrokeShape>
+                                                    <RoundRectangle CornerRadius="7" />
+                                                </Border.StrokeShape>
+                                                <Border.GestureRecognizers>
+                                                    <TapGestureRecognizer Command="{Binding SelectProfileCommand, Source={RelativeSource AncestorType={x:Type vm:TimerViewModel}}, x:DataType=vm:TimerViewModel}"
+                                                                          CommandParameter="{Binding .}" />
+                                                </Border.GestureRecognizers>
+                                                <Border.Triggers>
+                                                    <DataTrigger TargetType="Border" Binding="{Binding IsSelected}" Value="True">
+                                                        <Setter Property="BackgroundColor" Value="{StaticResource BackgroundSecondaryColor}" />
+                                                    </DataTrigger>
+                                                </Border.Triggers>
+                                                <Label Text="{Binding Profile.Name}"
+                                                       FontSize="12"
+                                                       VerticalOptions="Center">
+                                                    <Label.Triggers>
+                                                        <DataTrigger TargetType="Label" Binding="{Binding IsSelected}" Value="True">
+                                                            <Setter Property="FontFamily" Value="InterSemiBold" />
+                                                        </DataTrigger>
+                                                    </Label.Triggers>
+                                                </Label>
+                                            </Border>
+                                        </DataTemplate>
+                                    </BindableLayout.ItemTemplate>
+                                </HorizontalStackLayout>
+                            </Border>
+                        </Grid>
+
+                        <Grid ColumnDefinitions="*,120" ColumnSpacing="8">
+                            <Label Grid.Column="0"
+                                   Text="Dlhá prestávka po"
+                                   VerticalOptions="Center" />
+                            <Picker Grid.Column="1"
+                                    Style="{StaticResource PickerStyle}"
+                                    VerticalOptions="Center"
+                                    ItemsSource="{Binding LongBreakOptions}"
+                                    SelectedIndex="{Binding LongBreakIndex}" />
+                        </Grid>
+
+                        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8" BackgroundColor="Transparent">
+                            <Grid.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding ToggleAutoStartCommand}" />
+                            </Grid.GestureRecognizers>
+                            <Label Grid.Column="0"
+                                   Text="Automaticky ďalší blok a prestávka"
+                                   VerticalOptions="Center" />
+                            <Border Grid.Column="1" Style="{StaticResource CheckMarkBoxStyle}">
+                                <Border.Triggers>
+                                    <DataTrigger TargetType="Border" Binding="{Binding AutoStartNext}" Value="True">
+                                        <Setter Property="BackgroundColor" Value="{StaticResource CheckboxColor}" />
+                                    </DataTrigger>
+                                </Border.Triggers>
+                                <Path Data="M 1,5 L 4.5,8.5 L 11,1"
+                                      Stroke="{StaticResource TextOnDarkColor}"
+                                      StrokeThickness="2"
+                                      StrokeLineCap="Round"
+                                      StrokeLineJoin="Round"
+                                      HorizontalOptions="Center"
+                                      VerticalOptions="Center"
+                                      IsVisible="{Binding AutoStartNext}" />
+                            </Border>
+                        </Grid>
+
+                        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8" BackgroundColor="Transparent">
+                            <Grid.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding ToggleNotificationsCommand}" />
+                            </Grid.GestureRecognizers>
+                            <Label Grid.Column="0"
+                                   Text="Zvuk a notifikácia na konci"
+                                   VerticalOptions="Center" />
+                            <Border Grid.Column="1" Style="{StaticResource CheckMarkBoxStyle}">
+                                <Border.Triggers>
+                                    <DataTrigger TargetType="Border" Binding="{Binding NotificationsEnabled}" Value="True">
+                                        <Setter Property="BackgroundColor" Value="{StaticResource CheckboxColor}" />
+                                    </DataTrigger>
+                                </Border.Triggers>
+                                <Path Data="M 1,5 L 4.5,8.5 L 11,1"
+                                      Stroke="{StaticResource TextOnDarkColor}"
+                                      StrokeThickness="2"
+                                      StrokeLineCap="Round"
+                                      StrokeLineJoin="Round"
+                                      HorizontalOptions="Center"
+                                      VerticalOptions="Center"
+                                      IsVisible="{Binding NotificationsEnabled}" />
+                            </Border>
+                        </Grid>
+                    </VerticalStackLayout>
+                </Border>
+
+                <Border Grid.Row="4" Style="{StaticResource PanelCardStyle}">
+                    <Grid ColumnDefinitions="*,*,*" ColumnSpacing="8">
+                        <VerticalStackLayout Grid.Column="0" Spacing="2">
+                            <HorizontalStackLayout Spacing="4">
+                                <BoxView WidthRequest="6" HeightRequest="6" CornerRadius="3" Color="{StaticResource WorkColor}" VerticalOptions="Center" />
+                                <Label Text="Práca dnes" Style="{StaticResource TinyLabelStyle}" />
+                            </HorizontalStackLayout>
+                            <Label Text="{Binding TodayWorkTime, Converter={StaticResource TimeSpanToDurationConverter}}"
+                                   Style="{StaticResource ValueLabelStyle}" />
+                        </VerticalStackLayout>
+                        <VerticalStackLayout Grid.Column="1" Spacing="2">
+                            <HorizontalStackLayout Spacing="4">
+                                <BoxView WidthRequest="6" HeightRequest="6" CornerRadius="3" Color="{StaticResource BreakColor}" VerticalOptions="Center" />
+                                <Label Text="Prestávky" Style="{StaticResource TinyLabelStyle}" />
+                            </HorizontalStackLayout>
+                            <Label Text="{Binding TodayBreakTime, Converter={StaticResource TimeSpanToDurationConverter}}"
+                                   Style="{StaticResource ValueLabelStyle}" />
+                        </VerticalStackLayout>
+                        <VerticalStackLayout Grid.Column="2" Spacing="2">
+                            <HorizontalStackLayout Spacing="4">
+                                <BoxView WidthRequest="6" HeightRequest="6" CornerRadius="3" Color="{StaticResource OverrunColor}" VerticalOptions="Center" />
+                                <Label Text="Prečerpané" Style="{StaticResource TinyLabelStyle}" />
+                            </HorizontalStackLayout>
+                            <Label Text="{Binding TodayOverrunTime, Converter={StaticResource TimeSpanToDurationConverter}}"
+                                   Style="{StaticResource ValueLabelStyle}" />
+                        </VerticalStackLayout>
+                    </Grid>
+                </Border>
+            </Grid>
+
+            <BoxView Style="{StaticResource PanelSeparatorStyle}"
+                     HeightRequest="1"
+                     Margin="0,50,0,0"
+                     VerticalOptions="Start" />
+            <BoxView Style="{StaticResource PanelSeparatorStyle}"
+                     WidthRequest="1"
+                     HorizontalOptions="Start" />
+        </Grid>
+
+        <Grid Grid.Column="1"
+              WidthRequest="76"
+              BackgroundColor="{StaticResource BackgroundSecondaryColor}"
+              IsVisible="{Binding IsPanelOpen, Converter={StaticResource InvertedBoolConverter}}">
+            <VerticalStackLayout Padding="0,10,0,14"
+                                 Spacing="6"
+                                 HorizontalOptions="Center">
+                <Border Style="{StaticResource PanelToggleStyle}"
+                        Margin="0,0,0,4"
+                        HorizontalOptions="Center">
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding TogglePanelCommand}" />
+                    </Border.GestureRecognizers>
+                    <Image Source="panel_open.png"
+                           WidthRequest="16"
+                           HeightRequest="14">
+                        <Image.Behaviors>
+                            <toolkit:IconTintColorBehavior TintColor="{StaticResource TextNavigationColor}" />
+                        </Image.Behaviors>
+                    </Image>
+                </Border>
+                <controls:NavigationRailItem Title="Úloha"
+                                             Icon="panel_task.png"
+                                             Command="{Binding OpenPanelCommand}" />
+                <controls:NavigationRailItem Title="Profil"
+                                             Icon="panel_profile.png"
+                                             Command="{Binding OpenPanelCommand}" />
+                <controls:NavigationRailItem Title="Dnes"
+                                             Icon="nav_statistics.png"
+                                             Command="{Binding OpenPanelCommand}" />
+            </VerticalStackLayout>
+        </Grid>
+    </Grid>
 </views:ContentPageBase>

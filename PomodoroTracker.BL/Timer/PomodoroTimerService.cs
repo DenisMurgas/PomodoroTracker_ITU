@@ -132,6 +132,11 @@ public partial class PomodoroTimerService(
         else if (CurrentPhase != SessionType.Work)
         {
             await ReturnToWorkAsync();
+
+            if (State == TimerState.Idle)
+            {
+                await StartAsync();
+            }
         }
         else if (State == TimerState.Paused)
         {
@@ -221,8 +226,17 @@ public partial class PomodoroTimerService(
             return;
         }
 
+        bool endsCycle = CurrentPhase == SessionType.LongBreak;
+
         await FinishCurrentSessionAsync(Now());
         CompleteBreakCycle();
+
+        if (endsCycle)
+        {
+            ResetToIdle(SessionType.Work);
+            return;
+        }
+
         await StartPhaseAsync(SessionType.Work);
     }
 
@@ -281,6 +295,12 @@ public partial class PomodoroTimerService(
         {
             await FinishCurrentSessionAsync(now);
             await ContinueAfterWorkAsync();
+        }
+        else if (phase == SessionType.LongBreak)
+        {
+            await FinishCurrentSessionAsync(now);
+            CompleteBreakCycle();
+            ResetToIdle(SessionType.Work);
         }
         else
         {
