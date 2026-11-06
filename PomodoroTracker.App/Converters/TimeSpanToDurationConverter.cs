@@ -15,6 +15,11 @@ public class TimeSpanToDurationConverter : BaseConverterOneWay<TimeSpan, string>
         int hours = totalMinutes / 60;
         int minutes = totalMinutes % 60;
 
+        if (totalMinutes == 0 && value.Duration().Seconds > 0)
+        {
+            return $"{value.Duration().Seconds} s";
+        }
+
         return hours > 0
             ? $"{hours} h {minutes:00} min"
             : $"{minutes} min";

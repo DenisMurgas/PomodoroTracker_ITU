@@ -1,15 +1,312 @@
-<!-- Autor: Tým / Spoločné -->
+<!-- Autor: xmurgad00 -->
 <views:ContentPageBase xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
                        xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
                        xmlns:views="clr-namespace:PomodoroTracker.App.Views"
                        xmlns:vm="clr-namespace:PomodoroTracker.App.ViewModels"
+                       xmlns:models="clr-namespace:PomodoroTracker.App.Models"
+                       xmlns:converters="clr-namespace:PomodoroTracker.App.Converters"
+                       xmlns:m="clr-namespace:PomodoroTracker.BL.Models;assembly=PomodoroTracker.BL"
+                       xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
                        x:Class="PomodoroTracker.App.Views.Tasks.TaskListView"
                        x:DataType="vm:TaskListViewModel"
                        Title="Úlohy">
-    <Border Style="{StaticResource CardStyle}">
-        <Label Text="Úlohy"
-               Style="{StaticResource PageTitleLabelStyle}"
-               HorizontalOptions="Center"
-               VerticalOptions="Center" />
-    </Border>
+
+    <views:ContentPageBase.Resources>
+        <converters:HexToSoftColorConverter x:Key="HexToSoftColorConverter" />
+        <toolkit:InvertedBoolConverter x:Key="InvertedBoolConverter" />
+    </views:ContentPageBase.Resources>
+
+    <Grid RowDefinitions="Auto,*,Auto" RowSpacing="10">
+
+        <Grid Grid.Row="0" ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
+            <Label Grid.Column="0"
+                   Text="Úlohy"
+                   Style="{StaticResource PageTitleLabelStyle}"
+                   VerticalOptions="Center" />
+
+            <ScrollView Grid.Column="1"
+                        Orientation="Horizontal"
+                        VerticalOptions="Center"
+                        IsVisible="{Binding IsAddingProject, Converter={StaticResource InvertedBoolConverter}}">
+                <HorizontalStackLayout Spacing="4" Padding="0,4">
+                    <HorizontalStackLayout Spacing="4"
+                                           VerticalOptions="Center"
+                                           BindableLayout.ItemsSource="{Binding Filters}">
+                        <BindableLayout.ItemTemplate>
+                            <DataTemplate x:DataType="models:ProjectFilterModel">
+                                <Border Padding="10,0"
+                                        HeightRequest="28"
+                                        StrokeThickness="0"
+                                        BackgroundColor="{StaticResource BackgroundSecondaryColor}"
+                                        Shadow="{StaticResource SoftControlShadow}">
+                                    <Border.StrokeShape>
+                                        <RoundRectangle CornerRadius="14" />
+                                    </Border.StrokeShape>
+                                    <Border.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding SelectFilterCommand, Source={RelativeSource AncestorType={x:Type vm:TaskListViewModel}}, x:DataType=vm:TaskListViewModel}"
+                                                              CommandParameter="{Binding .}" />
+                                    </Border.GestureRecognizers>
+                                    <Border.Triggers>
+                                        <DataTrigger TargetType="Border" Binding="{Binding IsSelected}" Value="True">
+                                            <Setter Property="BackgroundColor" Value="{StaticResource DarkColor}" />
+                                        </DataTrigger>
+                                    </Border.Triggers>
+                                    <HorizontalStackLayout Spacing="5" VerticalOptions="Center">
+                                        <BoxView WidthRequest="7"
+                                                 HeightRequest="7"
+                                                 CornerRadius="2"
+                                                 VerticalOptions="Center"
+                                                 IsVisible="{Binding HasColor}"
+                                                 Color="{Binding Color, Converter={StaticResource HexToColorConverter}}" />
+                                        <Label Text="{Binding Name}"
+                                               FontSize="12"
+                                               VerticalOptions="Center">
+                                            <Label.Triggers>
+                                                <DataTrigger TargetType="Label" Binding="{Binding IsSelected}" Value="True">
+                                                    <Setter Property="TextColor" Value="{StaticResource TextOnDarkColor}" />
+                                                    <Setter Property="FontFamily" Value="InterSemiBold" />
+                                                </DataTrigger>
+                                            </Label.Triggers>
+                                        </Label>
+                                    </HorizontalStackLayout>
+                                </Border>
+                            </DataTemplate>
+                        </BindableLayout.ItemTemplate>
+                    </HorizontalStackLayout>
+
+                    <Border Padding="10,0"
+                            HeightRequest="28"
+                            StrokeThickness="0"
+                            BackgroundColor="{StaticResource BackgroundSecondaryColor}"
+                            Shadow="{StaticResource SoftControlShadow}"
+                            VerticalOptions="Center">
+                        <Border.StrokeShape>
+                            <RoundRectangle CornerRadius="14" />
+                        </Border.StrokeShape>
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding StartAddingProjectCommand}" />
+                        </Border.GestureRecognizers>
+                        <Label Text="+ Kategória"
+                               FontSize="12"
+                               TextColor="{StaticResource TextNavigationColor}"
+                               VerticalOptions="Center" />
+                    </Border>
+                </HorizontalStackLayout>
+            </ScrollView>
+
+            <Grid Grid.Column="1"
+                  ColumnDefinitions="*,Auto,Auto"
+                  ColumnSpacing="6"
+                  VerticalOptions="Center"
+                  IsVisible="{Binding IsAddingProject}">
+                <Entry Grid.Column="0"
+                       Placeholder="Názov kategórie"
+                       Text="{Binding NewProjectName}"
+                       ReturnCommand="{Binding AddProjectCommand}"
+                       FontSize="13"
+                       HeightRequest="32"
+                       Style="{StaticResource EntryStyle}" />
+                <Button Grid.Column="1"
+                        Text="Pridať"
+                        Command="{Binding AddProjectCommand}"
+                        HeightRequest="32"
+                        FontSize="12"
+                        Padding="12,0"
+                        CornerRadius="8"
+                        Style="{StaticResource DarkButtonStyle}" />
+                <Button Grid.Column="2"
+                        Text="Zrušiť"
+                        Command="{Binding CancelAddingProjectCommand}"
+                        HeightRequest="32"
+                        FontSize="12"
+                        Padding="12,0"
+                        CornerRadius="8"
+                        Style="{StaticResource SecondaryButtonStyle}" />
+            </Grid>
+
+            <Label Grid.Column="2"
+                   Style="{StaticResource SmallLabelStyle}"
+                   VerticalOptions="Center">
+                <Label.FormattedText>
+                    <FormattedString>
+                        <Span Text="dnes " />
+                        <Span Text="{Binding TodayWorkTime, Converter={StaticResource TimeSpanToDurationConverter}}" />
+                    </FormattedString>
+                </Label.FormattedText>
+            </Label>
+        </Grid>
+
+        <Border Grid.Row="1"
+                Style="{StaticResource CardStyle}"
+                Padding="6,4">
+            <Grid RowDefinitions="*,Auto">
+                <CollectionView Grid.Row="0"
+                                ItemsSource="{Binding Tasks}"
+                                SelectionMode="None">
+                    <CollectionView.ItemsLayout>
+                        <LinearItemsLayout Orientation="Vertical" ItemSpacing="2" />
+                    </CollectionView.ItemsLayout>
+
+                    <CollectionView.EmptyView>
+                        <Label Text="Žiadne rozpracované úlohy"
+                               Style="{StaticResource SmallLabelStyle}"
+                               HorizontalOptions="Center"
+                               VerticalOptions="Center" />
+                    </CollectionView.EmptyView>
+
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="models:TaskRowModel">
+                            <Border Padding="6,0"
+                                    HeightRequest="46"
+                                    StrokeThickness="0"
+                                    BackgroundColor="Transparent">
+                                <Border.StrokeShape>
+                                    <RoundRectangle CornerRadius="8" />
+                                </Border.StrokeShape>
+                                <FlyoutBase.ContextFlyout>
+                                    <MenuFlyout>
+                                        <MenuFlyoutItem Text="Odstrániť"
+                                                        Command="{Binding DeleteTaskCommand, Source={RelativeSource AncestorType={x:Type vm:TaskListViewModel}}, x:DataType=vm:TaskListViewModel}"
+                                                        CommandParameter="{Binding .}" />
+                                    </MenuFlyout>
+                                </FlyoutBase.ContextFlyout>
+                                <Border.Triggers>
+                                    <DataTrigger TargetType="Border" Binding="{Binding IsLastWorked}" Value="True">
+                                        <Setter Property="BackgroundColor" Value="{StaticResource AccentSoftColor}" />
+                                    </DataTrigger>
+                                </Border.Triggers>
+
+                                <Grid ColumnDefinitions="Auto,*,100,82,Auto" ColumnSpacing="10">
+                                    <Border Grid.Column="0"
+                                            WidthRequest="16"
+                                            HeightRequest="16"
+                                            StrokeThickness="1.5"
+                                            Stroke="{StaticResource TextSecondaryColor}"
+                                            BackgroundColor="{StaticResource SurfaceColor}"
+                                            VerticalOptions="Center">
+                                        <Border.StrokeShape>
+                                            <RoundRectangle CornerRadius="3" />
+                                        </Border.StrokeShape>
+                                        <Border.GestureRecognizers>
+                                            <TapGestureRecognizer Command="{Binding CompleteTaskCommand, Source={RelativeSource AncestorType={x:Type vm:TaskListViewModel}}, x:DataType=vm:TaskListViewModel}"
+                                                                  CommandParameter="{Binding .}" />
+                                        </Border.GestureRecognizers>
+                                    </Border>
+
+                                    <HorizontalStackLayout Grid.Column="1"
+                                                           Spacing="8"
+                                                           VerticalOptions="Center">
+                                        <Label Text="{Binding Item.Name}"
+                                               Style="{StaticResource TaskLabelStyle}"
+                                               LineBreakMode="TailTruncation"
+                                               VerticalOptions="Center" />
+                                        <Label Text="naposledy"
+                                               FontFamily="InterSemiBold"
+                                               FontSize="11"
+                                               TextColor="{StaticResource AccentColor}"
+                                               VerticalOptions="Center"
+                                               IsVisible="{Binding IsLastWorked}" />
+                                    </HorizontalStackLayout>
+
+                                    <Border Grid.Column="2"
+                                            Padding="8,3"
+                                            StrokeThickness="0"
+                                            VerticalOptions="Center"
+                                            BackgroundColor="{Binding Item.ProjectColor, Converter={StaticResource HexToSoftColorConverter}}">
+                                        <Border.StrokeShape>
+                                            <RoundRectangle CornerRadius="10" />
+                                        </Border.StrokeShape>
+                                        <Label Text="{Binding Item.ProjectName}"
+                                               FontFamily="InterMedium"
+                                               FontSize="12"
+                                               LineBreakMode="TailTruncation"
+                                               HorizontalOptions="Center"
+                                               TextColor="{Binding Item.ProjectColor, Converter={StaticResource HexToColorConverter}}" />
+                                    </Border>
+
+                                    <Label Grid.Column="3"
+                                           Text="{Binding Item.TrackedTime, Converter={StaticResource TimeSpanToDurationConverter}}"
+                                           HorizontalOptions="End"
+                                           VerticalOptions="Center">
+                                        <Label.Triggers>
+                                            <DataTrigger TargetType="Label" Binding="{Binding Item.WorkBlockCount}" Value="0">
+                                                <Setter Property="TextColor" Value="{StaticResource TextSecondaryColor}" />
+                                            </DataTrigger>
+                                        </Label.Triggers>
+                                    </Label>
+
+                                    <Border Grid.Column="4"
+                                            WidthRequest="34"
+                                            HeightRequest="34"
+                                            StrokeThickness="0"
+                                            VerticalOptions="Center"
+                                            BackgroundColor="{StaticResource AccentSoftColor}">
+                                        <Border.StrokeShape>
+                                            <RoundRectangle CornerRadius="17" />
+                                        </Border.StrokeShape>
+                                        <Border.GestureRecognizers>
+                                            <TapGestureRecognizer Command="{Binding StartTaskCommand, Source={RelativeSource AncestorType={x:Type vm:TaskListViewModel}}, x:DataType=vm:TaskListViewModel}"
+                                                                  CommandParameter="{Binding .}" />
+                                        </Border.GestureRecognizers>
+                                        <Border.Triggers>
+                                            <DataTrigger TargetType="Border" Binding="{Binding IsLastWorked}" Value="True">
+                                                <Setter Property="BackgroundColor" Value="{StaticResource AccentColor}" />
+                                            </DataTrigger>
+                                        </Border.Triggers>
+                                        <Path Data="M 0,0 L 9,5.5 L 0,11 Z"
+                                              Fill="{StaticResource AccentColor}"
+                                              Margin="2,0,0,0"
+                                              HorizontalOptions="Center"
+                                              VerticalOptions="Center">
+                                            <Path.Triggers>
+                                                <DataTrigger TargetType="Path" Binding="{Binding IsLastWorked}" Value="True">
+                                                    <Setter Property="Fill" Value="{StaticResource TextOnDarkColor}" />
+                                                </DataTrigger>
+                                            </Path.Triggers>
+                                        </Path>
+                                    </Border>
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+
+                <Label Grid.Row="1"
+                       Margin="6,10"
+                       FontFamily="InterSemiBold"
+                       TextColor="{StaticResource TextNavigationColor}"
+                       IsVisible="{Binding HasCompletedTasks}">
+                    <Label.FormattedText>
+                        <FormattedString>
+                            <Span Text="Hotové · " />
+                            <Span Text="{Binding CompletedCountText}" />
+                        </FormattedString>
+                    </Label.FormattedText>
+                </Label>
+            </Grid>
+        </Border>
+
+        <Grid Grid.Row="2" ColumnDefinitions="*,160,Auto" ColumnSpacing="6">
+            <Entry Grid.Column="0"
+                   Placeholder="Nová úloha…"
+                   Text="{Binding NewTaskName}"
+                   ReturnCommand="{Binding AddTaskCommand}"
+                   Style="{StaticResource EntryStyle}" />
+
+            <Picker Grid.Column="1"
+                    VerticalOptions="Center"
+                    ItemsSource="{Binding Projects}"
+                    ItemDisplayBinding="{Binding Name, x:DataType=m:ProjectListModel}"
+                    SelectedItem="{Binding NewTaskProject}"
+                    Style="{StaticResource PickerStyle}" />
+
+            <Button Grid.Column="2"
+                    Text="Pridať"
+                    Command="{Binding AddTaskCommand}"
+                    HeightRequest="36"
+                    CornerRadius="8"
+                    Padding="14,0"
+                    Style="{StaticResource DarkButtonStyle}" />
+        </Grid>
+    </Grid>
 </views:ContentPageBase>
