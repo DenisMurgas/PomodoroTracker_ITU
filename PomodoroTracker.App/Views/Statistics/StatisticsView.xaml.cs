@@ -1,4 +1,4 @@
-// Autor: Tým / Spoločné
+// Autor: xmurgad00
 
 using PomodoroTracker.App.ViewModels;
 

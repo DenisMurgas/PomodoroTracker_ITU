@@ -1,15 +1,250 @@
-<!-- Autor: Tým / Spoločné -->
+<!-- Autor: xmurgad00 -->
 <views:ContentPageBase xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
                        xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
                        xmlns:views="clr-namespace:PomodoroTracker.App.Views"
                        xmlns:vm="clr-namespace:PomodoroTracker.App.ViewModels"
+                       xmlns:models="clr-namespace:PomodoroTracker.App.Models"
+                       xmlns:controls="clr-namespace:PomodoroTracker.App.Controls"
                        x:Class="PomodoroTracker.App.Views.Statistics.StatisticsView"
                        x:DataType="vm:StatisticsViewModel"
                        Title="Štatistiky">
-    <Border Style="{StaticResource CardStyle}">
-        <Label Text="Štatistiky"
-               Style="{StaticResource PageTitleLabelStyle}"
-               HorizontalOptions="Center"
-               VerticalOptions="Center" />
-    </Border>
+
+    <views:ContentPageBase.Resources>
+        <Style x:Key="SummaryTileStyle" TargetType="Border">
+            <Setter Property="HeightRequest" Value="46" />
+            <Setter Property="Padding" Value="10,0" />
+            <Setter Property="StrokeThickness" Value="0" />
+            <Setter Property="BackgroundColor" Value="{StaticResource BackgroundSecondaryColor}" />
+            <Setter Property="Shadow" Value="{StaticResource SoftControlShadow}" />
+            <Setter Property="StrokeShape">
+                <Setter.Value>
+                    <RoundRectangle CornerRadius="9.5" />
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="SummaryValueLabelStyle" TargetType="Label">
+            <Setter Property="FontFamily" Value="InterBold" />
+            <Setter Property="FontSize" Value="15" />
+        </Style>
+
+        <Style x:Key="LegendDotStyle" TargetType="BoxView">
+            <Setter Property="WidthRequest" Value="9" />
+            <Setter Property="HeightRequest" Value="9" />
+            <Setter Property="CornerRadius" Value="2" />
+            <Setter Property="VerticalOptions" Value="Center" />
+        </Style>
+
+        <Style x:Key="LegendLabelStyle" TargetType="Label">
+            <Setter Property="FontSize" Value="11" />
+            <Setter Property="TextColor" Value="{StaticResource TextNavigationColor}" />
+            <Setter Property="VerticalOptions" Value="Center" />
+        </Style>
+    </views:ContentPageBase.Resources>
+
+    <Grid RowDefinitions="46,*" RowSpacing="11">
+
+        <Grid Grid.Row="0" ColumnDefinitions="Auto,*,*,*" ColumnSpacing="9">
+            <Border Grid.Column="0"
+                    Padding="3"
+                    Margin="0,0,4,0"
+                    HeightRequest="34"
+                    StrokeThickness="0"
+                    VerticalOptions="Center"
+                    BackgroundColor="{StaticResource SurfaceColor}">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="9" />
+                </Border.StrokeShape>
+                <HorizontalStackLayout Spacing="0">
+                    <Border Padding="12,0"
+                            StrokeThickness="0"
+                            BackgroundColor="{StaticResource BackgroundSecondaryColor}">
+                        <Border.StrokeShape>
+                            <RoundRectangle CornerRadius="7" />
+                        </Border.StrokeShape>
+                        <Label FontSize="12" VerticalOptions="Center">
+                            <Label.FormattedText>
+                                <FormattedString>
+                                    <Span Text="Deň" FontFamily="InterSemiBold" />
+                                    <Span Text="  +  " FontFamily="InterMedium" TextColor="{StaticResource TextSecondaryColor}" />
+                                    <Span Text="Týždeň" FontFamily="InterSemiBold" />
+                                </FormattedString>
+                            </Label.FormattedText>
+                        </Label>
+                    </Border>
+                    <Label Text="Mesiac"
+                           FontSize="12"
+                           Padding="14,0"
+                           TextColor="{StaticResource TextSecondaryColor}"
+                           VerticalOptions="Center" />
+                </HorizontalStackLayout>
+            </Border>
+
+            <Border Grid.Column="1" Style="{StaticResource SummaryTileStyle}">
+                <VerticalStackLayout Spacing="1" VerticalOptions="Center">
+                    <HorizontalStackLayout Spacing="4">
+                        <BoxView WidthRequest="7" HeightRequest="7" CornerRadius="3.5" Color="{StaticResource WorkColor}" VerticalOptions="Center" />
+                        <Label Text="Práca" Style="{StaticResource TinyLabelStyle}" />
+                    </HorizontalStackLayout>
+                    <Label Text="{Binding Summary.WorkTime, Converter={StaticResource TimeSpanToDurationConverter}}"
+                           Style="{StaticResource SummaryValueLabelStyle}" />
+                </VerticalStackLayout>
+            </Border>
+
+            <Border Grid.Column="2" Style="{StaticResource SummaryTileStyle}">
+                <VerticalStackLayout Spacing="1" VerticalOptions="Center">
+                    <HorizontalStackLayout Spacing="4">
+                        <BoxView WidthRequest="7" HeightRequest="7" CornerRadius="3.5" Color="{StaticResource BreakColor}" VerticalOptions="Center" />
+                        <Label Text="Prestávky" Style="{StaticResource TinyLabelStyle}" />
+                    </HorizontalStackLayout>
+                    <Label Text="{Binding Summary.BreakTime, Converter={StaticResource TimeSpanToDurationConverter}}"
+                           Style="{StaticResource SummaryValueLabelStyle}" />
+                </VerticalStackLayout>
+            </Border>
+
+            <Border Grid.Column="3" Style="{StaticResource SummaryTileStyle}">
+                <VerticalStackLayout Spacing="1" VerticalOptions="Center">
+                    <HorizontalStackLayout Spacing="4">
+                        <BoxView WidthRequest="7" HeightRequest="7" CornerRadius="3.5" Color="{StaticResource OverrunColor}" VerticalOptions="Center" />
+                        <Label Text="Prečerpané" Style="{StaticResource TinyLabelStyle}" />
+                    </HorizontalStackLayout>
+                    <Label Text="{Binding Summary.OverrunTime, Converter={StaticResource TimeSpanToDurationConverter}}"
+                           Style="{StaticResource SummaryValueLabelStyle}" />
+                </VerticalStackLayout>
+            </Border>
+        </Grid>
+
+        <Grid Grid.Row="1" ColumnDefinitions="*,*" ColumnSpacing="11">
+
+            <Grid Grid.Column="0" RowDefinitions="Auto,*" RowSpacing="11">
+
+                <Border Grid.Row="0" Style="{StaticResource CardStyle}">
+                    <VerticalStackLayout Spacing="8">
+                        <Label Text="Časová os dňa" Style="{StaticResource CardTitleLabelStyle}" />
+
+                        <controls:TimelineBar HeightRequest="22"
+                                              Segments="{Binding TimelineSegments}"
+                                              TrackColor="{StaticResource SurfaceColor}"
+                                              WorkColor="{StaticResource WorkColor}"
+                                              BreakColor="{StaticResource BreakColor}"
+                                              OverrunColor="{StaticResource OverrunColor}" />
+
+                        <Grid ColumnDefinitions="*,*,*,Auto">
+                            <Label Grid.Column="0" Text="{Binding TimelineStartText}" Style="{StaticResource TinyLabelStyle}" />
+                            <Label Grid.Column="1" Text="{Binding TimelineFirstThirdText}" Style="{StaticResource TinyLabelStyle}" />
+                            <Label Grid.Column="2" Text="{Binding TimelineSecondThirdText}" Style="{StaticResource TinyLabelStyle}" />
+                            <Label Grid.Column="3" Text="{Binding TimelineEndText}" Style="{StaticResource TinyLabelStyle}" />
+                        </Grid>
+
+                        <FlexLayout Wrap="Wrap" AlignItems="Center">
+                            <HorizontalStackLayout Spacing="5" Margin="0,0,12,4">
+                                <BoxView Style="{StaticResource LegendDotStyle}" Color="{StaticResource WorkColor}" />
+                                <Label Text="Práca" Style="{StaticResource LegendLabelStyle}" />
+                            </HorizontalStackLayout>
+                            <HorizontalStackLayout Spacing="5" Margin="0,0,12,4">
+                                <BoxView Style="{StaticResource LegendDotStyle}" Color="{StaticResource BreakColor}" />
+                                <Label Text="Prestávka" Style="{StaticResource LegendLabelStyle}" />
+                            </HorizontalStackLayout>
+                            <HorizontalStackLayout Spacing="5" Margin="0,0,12,4">
+                                <BoxView Style="{StaticResource LegendDotStyle}" Color="{StaticResource OverrunColor}" />
+                                <Label Text="Prečerpaná" Style="{StaticResource LegendLabelStyle}" />
+                            </HorizontalStackLayout>
+                            <HorizontalStackLayout Spacing="5" Margin="0,0,12,4">
+                                <BoxView Style="{StaticResource LegendDotStyle}" Color="{StaticResource SurfaceColor}" />
+                                <Label Text="Nemerané" Style="{StaticResource LegendLabelStyle}" />
+                            </HorizontalStackLayout>
+                        </FlexLayout>
+                    </VerticalStackLayout>
+                </Border>
+
+                <Border Grid.Row="1" Style="{StaticResource CardStyle}">
+                    <Grid RowDefinitions="Auto,*" RowSpacing="12">
+                        <Label Grid.Row="0" Text="Podľa projektov" Style="{StaticResource CardTitleLabelStyle}" />
+
+                        <ScrollView Grid.Row="1">
+                            <VerticalStackLayout Spacing="8" BindableLayout.ItemsSource="{Binding Projects}">
+                                <BindableLayout.ItemTemplate>
+                                    <DataTemplate x:DataType="models:ProjectStatRowModel">
+                                        <Grid ColumnDefinitions="80,*,74" ColumnSpacing="6" HeightRequest="16">
+                                            <Label Grid.Column="0"
+                                                   Text="{Binding Name}"
+                                                   FontSize="12"
+                                                   LineBreakMode="TailTruncation"
+                                                   VerticalOptions="Center" />
+                                            <controls:BarView Grid.Column="1"
+                                                              HeightRequest="8"
+                                                              VerticalOptions="Center"
+                                                              Value="{Binding Ratio}"
+                                                              BarCornerRadius="4"
+                                                              TrackColor="{StaticResource SurfaceColor}"
+                                                              BarColor="{Binding Color, Converter={StaticResource HexToColorConverter}}" />
+                                            <Label Grid.Column="2"
+                                                   Text="{Binding WorkTime, Converter={StaticResource TimeSpanToDurationConverter}}"
+                                                   FontFamily="InterBold"
+                                                   FontSize="12"
+                                                   HorizontalOptions="End"
+                                                   VerticalOptions="Center" />
+                                        </Grid>
+                                    </DataTemplate>
+                                </BindableLayout.ItemTemplate>
+                            </VerticalStackLayout>
+                        </ScrollView>
+                    </Grid>
+                </Border>
+            </Grid>
+
+            <Border Grid.Column="1" Style="{StaticResource CardStyle}">
+                <Grid RowDefinitions="Auto,*" RowSpacing="12">
+                    <Grid Grid.Row="0" ColumnDefinitions="*,Auto">
+                        <Label Grid.Column="0" Text="Práca tento týždeň" Style="{StaticResource CardTitleLabelStyle}" />
+                        <Label Grid.Column="1" Style="{StaticResource TinyLabelStyle}" VerticalOptions="Center">
+                            <Label.FormattedText>
+                                <FormattedString>
+                                    <Span Text="spolu " />
+                                    <Span Text="{Binding WeekTotal, Converter={StaticResource TimeSpanToDurationConverter}}" />
+                                </FormattedString>
+                            </Label.FormattedText>
+                        </Label>
+                    </Grid>
+
+                    <Grid Grid.Row="1"
+                          ColumnDefinitions="*,*,*,*,*,*,*"
+                          BindableLayout.ItemsSource="{Binding WeekDays}">
+                        <BindableLayout.ItemTemplate>
+                            <DataTemplate x:DataType="models:WeekDayModel">
+                                <Grid Grid.Column="{Binding Index}" RowDefinitions="*,Auto" RowSpacing="8">
+                                    <controls:BarView Grid.Row="0"
+                                                      WidthRequest="30"
+                                                      HorizontalOptions="Center"
+                                                      IsVertical="True"
+                                                      Opacity="0.55"
+                                                      Value="{Binding Ratio}"
+                                                      ValueText="{Binding ValueText}"
+                                                      ValueTextColor="{StaticResource TextPrimaryColor}"
+                                                      BarColor="{StaticResource WorkColor}">
+                                        <controls:BarView.Triggers>
+                                            <DataTrigger TargetType="controls:BarView" Binding="{Binding IsToday}" Value="True">
+                                                <Setter Property="Opacity" Value="1" />
+                                            </DataTrigger>
+                                        </controls:BarView.Triggers>
+                                    </controls:BarView>
+                                    <Label Grid.Row="1"
+                                           Text="{Binding Label}"
+                                           Style="{StaticResource TinyLabelStyle}"
+                                           HorizontalOptions="Center">
+                                        <Label.Triggers>
+                                            <DataTrigger TargetType="Label" Binding="{Binding IsToday}" Value="True">
+                                                <Setter Property="FontFamily" Value="InterBold" />
+                                                <Setter Property="TextColor" Value="{StaticResource TextPrimaryColor}" />
+                                            </DataTrigger>
+                                        </Label.Triggers>
+                                    </Label>
+                                </Grid>
+                            </DataTemplate>
+                        </BindableLayout.ItemTemplate>
+                    </Grid>
+                </Grid>
+            </Border>
+        </Grid>
+    </Grid>
 </views:ContentPageBase>
