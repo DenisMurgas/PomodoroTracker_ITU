@@ -334,6 +334,9 @@
                 </Border>
 
                 <Border Grid.Row="4" Style="{StaticResource PanelCardStyle}">
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding OpenStatisticsCommand}" />
+                    </Border.GestureRecognizers>
                     <Grid ColumnDefinitions="*,*,*" ColumnSpacing="8">
                         <VerticalStackLayout Grid.Column="0" Spacing="2">
                             <HorizontalStackLayout Spacing="4">

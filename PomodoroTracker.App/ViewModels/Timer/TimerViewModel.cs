@@ -217,6 +217,9 @@ public partial class TimerViewModel : ViewModelBase, IRecipient<TaskChangedMessa
     private Task ChangeTaskAsync() => _navigationService.GoToAsync(NavigationService.TasksRouteAbsolute);
 
     [RelayCommand]
+    private Task OpenStatisticsAsync() => _navigationService.GoToAsync(NavigationService.StatisticsRouteAbsolute);
+
+    [RelayCommand]
     private async Task SelectProfileAsync(TimerProfileOptionModel option)
     {
         _timerService.SetProfile(option.Profile);
