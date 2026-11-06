@@ -1,0 +1,25 @@
+<!-- Autor: xmurgad00 -->
+<ResourceDictionary xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
+    <Color x:Key="BackgroundMainColor">#FFF5F0</Color>
+    <Color x:Key="BackgroundSecondaryColor">#FFE2D8</Color>
+    <Color x:Key="SurfaceColor">#FFFFFF</Color>
+    <Color x:Key="ShadowColor">#703723</Color>
+    <Color x:Key="TextPrimaryColor">#1B1F24</Color>
+    <Color x:Key="TextSecondaryColor">#5B6470</Color>
+    <Color x:Key="TextNavigationColor">#4A4F57</Color>
+    <Color x:Key="TextOnDarkColor">#FFFFFF</Color>
+    <Color x:Key="AccentColor">#C2412D</Color>
+    <Color x:Key="AccentSoftColor">#FDECE9</Color>
+    <Color x:Key="DarkColor">#1B1F24</Color>
+    <Color x:Key="WorkColor">#E0533D</Color>
+    <Color x:Key="BreakColor">#F4D35E</Color>
+    <Color x:Key="BreakTextColor">#8A6D00</Color>
+    <Color x:Key="OverrunColor">#D97706</Color>
+    <Color x:Key="OverrunTextColor">#B45309</Color>
+    <Color x:Key="TimerTrackColor">#FFFFFF</Color>
+    <Color x:Key="PendingBlockColor">#FFFFFF</Color>
+    <Color x:Key="ProjectColor">#52622D</Color>
+    <Color x:Key="BadgeColor">#E9EED8</Color>
+    <Color x:Key="CheckboxColor">#C2412D</Color>
+</ResourceDictionary>

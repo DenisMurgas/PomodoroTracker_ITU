@@ -1,0 +1,62 @@
+<!-- Autor: Tým / Spoločné -->
+<Shell xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+       xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+       xmlns:controls="clr-namespace:PomodoroTracker.App.Controls"
+       xmlns:services="clr-namespace:PomodoroTracker.App.Services"
+       xmlns:shells="clr-namespace:PomodoroTracker.App.Shells"
+       xmlns:timer="clr-namespace:PomodoroTracker.App.Views.Timer"
+       xmlns:tasks="clr-namespace:PomodoroTracker.App.Views.Tasks"
+       xmlns:statistics="clr-namespace:PomodoroTracker.App.Views.Statistics"
+       x:Class="PomodoroTracker.App.Shells.AppShell"
+       x:Name="AppShellRoot"
+       FlyoutBehavior="Locked"
+       FlyoutWidth="76"
+       FlyoutBackgroundColor="{StaticResource BackgroundSecondaryColor}"
+       Shell.NavBarIsVisible="False"
+       BackgroundColor="{StaticResource BackgroundMainColor}">
+
+    <Shell.FlyoutContent>
+        <VerticalStackLayout Padding="6,14"
+                             Spacing="6"
+                             HorizontalOptions="Fill">
+            <Ellipse WidthRequest="22"
+                     HeightRequest="22"
+                     Margin="0,0,0,8"
+                     Fill="{StaticResource WorkColor}"
+                     HorizontalOptions="Center" />
+
+            <controls:NavigationRailItem Title="Časovač"
+                                         Icon="nav_timer.png"
+                                         Route="{x:Static services:NavigationService.TimerRoute}"
+                                         CurrentRoute="{Binding CurrentRoute, Source={x:Reference AppShellRoot}, x:DataType=shells:AppShell}"
+                                         Command="{Binding NavigateCommand, Source={x:Reference AppShellRoot}, x:DataType=shells:AppShell}" />
+
+            <controls:NavigationRailItem Title="Úlohy"
+                                         Icon="nav_tasks.png"
+                                         Route="{x:Static services:NavigationService.TasksRoute}"
+                                         CurrentRoute="{Binding CurrentRoute, Source={x:Reference AppShellRoot}, x:DataType=shells:AppShell}"
+                                         Command="{Binding NavigateCommand, Source={x:Reference AppShellRoot}, x:DataType=shells:AppShell}" />
+
+            <controls:NavigationRailItem Title="Štatistiky"
+                                         Icon="nav_statistics.png"
+                                         Route="{x:Static services:NavigationService.StatisticsRoute}"
+                                         CurrentRoute="{Binding CurrentRoute, Source={x:Reference AppShellRoot}, x:DataType=shells:AppShell}"
+                                         Command="{Binding NavigateCommand, Source={x:Reference AppShellRoot}, x:DataType=shells:AppShell}" />
+        </VerticalStackLayout>
+    </Shell.FlyoutContent>
+
+    <FlyoutItem Title="Časovač">
+        <ShellContent Route="{x:Static services:NavigationService.TimerRoute}"
+                      ContentTemplate="{DataTemplate timer:TimerView}" />
+    </FlyoutItem>
+
+    <FlyoutItem Title="Úlohy">
+        <ShellContent Route="{x:Static services:NavigationService.TasksRoute}"
+                      ContentTemplate="{DataTemplate tasks:TaskListView}" />
+    </FlyoutItem>
+
+    <FlyoutItem Title="Štatistiky">
+        <ShellContent Route="{x:Static services:NavigationService.StatisticsRoute}"
+                      ContentTemplate="{DataTemplate statistics:StatisticsView}" />
+    </FlyoutItem>
+</Shell>

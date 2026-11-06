@@ -1,0 +1,18 @@
+<!-- Autor: Tým / Spoločné -->
+<Application xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:converters="clr-namespace:PomodoroTracker.App.Converters"
+             x:Class="PomodoroTracker.App.App">
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="Resources/Styles/Colors.xaml" />
+                <ResourceDictionary Source="Resources/Styles/Styles.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+
+            <converters:TimeSpanToClockConverter x:Key="TimeSpanToClockConverter" />
+            <converters:TimeSpanToDurationConverter x:Key="TimeSpanToDurationConverter" />
+            <converters:HexToColorConverter x:Key="HexToColorConverter" />
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>

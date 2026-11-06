@@ -1,0 +1,9 @@
+<!-- Autor: Tým / Spoločné -->
+<maui:MauiWinUIApplication
+    x:Class="PomodoroTracker.App.Platforms.Windows.App"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:maui="using:Microsoft.Maui"
+    xmlns:local="using:PomodoroTracker.App.WinUI">
+
+</maui:MauiWinUIApplication>
